@@ -41,8 +41,8 @@
 		2731FC1C235BBA3400D34355 = {
 			isa = PBXGroup;
 			children = (
-				2731FC27235BBA3400D34355 /* tinyrenderer */,
 				2731FC26235BBA3400D34355 /* Products */,
+				2731FC27235BBA3400D34355 /* tinyrenderer */,
 			);
 			sourceTree = "<group>";
 		};
