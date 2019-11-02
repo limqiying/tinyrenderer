@@ -20,9 +20,7 @@ const int height = 800;
 Model *model = NULL;
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
-    // uses Bresenham's Line Drawing Algorithm to draw a line from 
-    // (x0, y0) to (x1, y1)
-
+    // uses Bresenham's Line Drawing Algorithm to draw a line from (x0, y0) to (x1, y1)
     bool steep = false;
     if(std::abs(x0-x1) < std::abs(y0-y1)) {
         std::swap(x0, y0);
@@ -53,7 +51,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 int main(int argc, char** argv) {
-    model = new Model("resources/head.obj");
+    model = new Model("resources/mickey2.obj");
     TGAImage image(width, height, TGAImage::RGB);
 
     Eigen::Vector3f v0, v1;
@@ -75,9 +73,3 @@ int main(int argc, char** argv) {
     image.write_tga_file(output);
 
 }
-
-//     line(13, 20, 80, 40, image, white);
-//     line(20, 13, 40, 80, image, red);
-//     image.flip_vertically(); 
-//     image.write_tga_file(output);
-//     return 0;
