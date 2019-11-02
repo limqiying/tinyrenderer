@@ -12,7 +12,7 @@
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
-const char* output = "/Users/qiyinglim/Projects/tinyrenderer/tinyrenderer/output.tga";
+const char* output = "./output.tga";
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     bool steep = false;

@@ -6,7 +6,7 @@
 //  Copyright © 2019 Tia Lim. All rights reserved.
 //
 
-#include "model.hpp"
+#include "model.h"
 #include <iostream>
 #include <string>
 #include <fstream>
