@@ -19,24 +19,27 @@ Model::Model(const char *filename)
 {
     ifstream in;
     in.open(filename, ifstream::in);
-    if (in.fail()) return;
+    if (in.fail()) {
+        cout << "failed" << endl;
+        cerr << "Error: " << strerror(errno);
+        return;
+    } else {
+        cout << "success" << endl;
+    }
     std::string line;
     float raw[3];
     int i = 0;
     while (!in.eof()) {
-        if (i % 10 == 0) {
-            cout << verts.size() << endl;
-        }
         i ++;
         getline(in, line);
         istringstream iss(line.c_str());
         char trash;
-        if (line.compare(0, 2, "v ")) {
+        if (!line.compare(0, 2, "v ")) {
             iss >> trash;
             for (int i=0; i<3; i++) iss >> raw[i];
             Vector3f v = Vector3f(raw[0], raw[1], raw[2]);
             verts.push_back(v);
-        } else if (line.compare(0, 2, "f ")) {
+        } else if (!line.compare(0, 2, "f ")) {
             std::vector<int> f;
             int itrash, idx;
             iss >> trash;
