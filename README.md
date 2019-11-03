@@ -5,5 +5,5 @@ building a bare-bones renderer according to tinyrenderer by Dmitry V. Sokolov
 
 Wireframe renderings of .obj files available online
 ![head](images/wireframe/head.png)
-![mickey](images/wireframe/mickey.png)
+![mickey](images/wireframe/mickey2.png)
 ![cat](images/wireframe/cat.png)
