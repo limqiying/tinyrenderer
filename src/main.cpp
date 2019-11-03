@@ -104,12 +104,32 @@ void drawWireFrameMesh(const char* inputfile, const char* outputfile)
 
 }
 
-void drawTriangle(Eigen::Vector2f t0, Eigen::Vector2f t1, Eigen::Vector2f t2, TGAImage &image, TGAColor color) 
+void drawLineTriangle(Eigen::Vector2f t0, Eigen::Vector2f t1, Eigen::Vector2f t2, TGAImage &image, TGAColor color) 
 { 
     drawLine(t0, t1, image, color); 
     drawLine(t1, t2, image, color); 
     drawLine(t2, t0, image, color); 
     std::cout << "triangle drawn" << std::endl;
+}
+
+Eigen::Vector3f getBarycentricCoordinates(Eigen::Vector2i *triangle, Eigen::Vector2i point)
+{
+    // returns the barycentric coordinate of the point in terms of the input triangle
+    Eigen::Vector3f u = Eigen::Vector3f(triangle[2].x() - triangle[0].x(), triangle[1].x() - triangle[0].x(), triangle[0].x() - point.x())
+    .cross(Eigen::Vector3f(triangle[2].y() - triangle[0].y(), triangle[1].y() - triangle[0].x(), triangle[0].y() - point.y()));
+
+    if (std::abs(u.z())<1) {
+        return Eigen::Vector3f(-1,1,1);
+    }
+
+    // solution using cramer's rule to find coordinates
+    return Eigen::Vector3f(1.0 - (u.x() + u.y()) / u.z(), u.y() / u.z(), u.x() / u.z());
+}
+
+bool pointInTriangle(Eigen::Vector2i *triangle, Eigen::Vector2i point)
+{
+    Eigen::Vector3f barycentric = getBarycentricCoordinates(triangle, point);
+    return ! (barycentric.x() < 0 || barycentric.y() < 0 || barycentric.z() < 0);
 }
 
 int main(int argc, char** argv) 
@@ -120,10 +140,18 @@ int main(int argc, char** argv)
     Eigen::Vector2f t0[3] = {Eigen::Vector2f(10, 70),   Eigen::Vector2f(50, 160),  Eigen::Vector2f(70, 80)}; 
     Eigen::Vector2f t1[3] = {Eigen::Vector2f(180, 50),  Eigen::Vector2f(150, 1),   Eigen::Vector2f(70, 180)}; 
     Eigen::Vector2f t2[3] = {Eigen::Vector2f(180, 150), Eigen::Vector2f(120, 160), Eigen::Vector2f(130, 180)}; 
-    drawTriangle(t0[0], t0[1], t0[2], image, red); 
-    drawTriangle(t1[0], t1[1], t1[2], image, white); 
-    drawTriangle(t2[0], t2[1], t2[2], image, green);
+    drawLineTriangle(t0[0], t0[1], t0[2], image, red); 
+    drawLineTriangle(t1[0], t1[1], t1[2], image, white); 
+    drawLineTriangle(t2[0], t2[1], t2[2], image, green);
 
     image.flip_vertically(); 
-    image.write_tga_file("output.tga");
+    image.wr
+    
+    iEigen::Vector2f t2[3] = {Eigen::Vector2f(180, 150), Eigen::Vector2f(120, 160), Eigen::Vector2f(130, 180)}; 
+    drawLineTriangle(t0[0], t0[1], t0[2], image, red); 
+    drawLineTriangle(t1[0], t1[1], t1[2], image, white); 
+    drawLineTriangle(t2[0], t2[1], t2[2], image, green);
+
+    image.flip_vertically(); 
+    ite_tga_file("output.tga");
 }
