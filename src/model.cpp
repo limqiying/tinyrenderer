@@ -81,21 +81,24 @@ Model::Model(const char *filename)
     std::cerr << "# v# " << verts.size() << " f# "  << faces.size() << std::endl;
 }
 
-Model::~Model() {
-}
+Model::~Model() {}
 
-int Model::nverts() {
+int Model::nverts() 
+{
     return (int)verts.size();
 }
 
-int Model::nfaces() {
+int Model::nfaces() 
+{
     return (int)faces.size();
 }
 
-std::vector<int> Model::face(int idx) {
+std::vector<int> Model::face(int idx) 
+{
     return faces[idx];
 }
 
-Vector3f Model::vert(int i) {
+Vector3f Model::vert(int i) 
+{
     return verts[i];
 }
