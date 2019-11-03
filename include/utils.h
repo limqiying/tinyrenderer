@@ -142,10 +142,11 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
         }
     }
 
-    std::cout << boxMin[0] << " " << boxMin[1]<< " " << boxMax[0]<< " " << boxMax[1] << std::endl;
-
     Eigen::Vector2i point;
     Eigen::Vector3f barycentric;
+
+    // for every pixel in the bounding box, check if the pixel if in the triangle
+    // if it is in the triangle, color the pixel
     for (point[0]=boxMin[0]; point[0]<=boxMax[0]; point[0]++) {
         for (point[1]=boxMin[1]; point[1]<=boxMax[1]; point[1]++) {
             if (pointInTriangle(triangle, point, barycentric)) {
