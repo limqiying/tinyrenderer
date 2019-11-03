@@ -14,12 +14,12 @@
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
-const char* output = "./output.tga";
 const int width = 800;
 const int height = 800;
 Model *model = NULL;
 
-void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
+void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) 
+{
     // uses Bresenham's Line Drawing Algorithm to draw a line from (x0, y0) to (x1, y1)
     bool steep = false;
     if(std::abs(x0-x1) < std::abs(y0-y1)) {
@@ -50,8 +50,9 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
     }
 }
 
-int main(int argc, char** argv) {
-    model = new Model("resources/mickey.obj");
+void drawWireFrameMesh(const char* inputfile, const char* outputfile)
+{
+    model = new Model(inputfile);
     TGAImage image(width, height, TGAImage::RGB);
 
     Eigen::Vector3f v0, v1;
@@ -70,6 +71,10 @@ int main(int argc, char** argv) {
         }
     }
     image.flip_vertically(); 
-    image.write_tga_file(output);
+    image.write_tga_file(outputfile);
+}
 
+int main(int argc, char** argv) 
+{
+    drawWireFrameMesh("resources/mickey.obj", "output.tga");
 }
