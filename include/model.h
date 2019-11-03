@@ -6,8 +6,8 @@
 //  Copyright © 2019 Tia Lim. All rights reserved.
 //
 
-#ifndef model_hpp
-#define model_hpp
+#ifndef __MODEL_H__
+#define __MODEL_H__
 
 #include <stdio.h>
 #include <Eigen/Dense>
@@ -28,4 +28,4 @@ public:
     std::vector<int> face(int);
 };
 
-#endif /* model_hpp */
+#endif /* __MODEL_H__ */
