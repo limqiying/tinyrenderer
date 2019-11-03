@@ -44,54 +44,6 @@ void drawLine(const Eigen::Vector2i &p1, const Eigen::Vector2i &p2, TGAImage &im
     drawLine(p1[0], p1[1], p2[0], p2[1], image, color);
 }
 
-
-void drawWireFrameMesh(const char* inputfile, const char* outputfile, int width, int height)
-{
-    Model* model = new Model(inputfile);
-    TGAImage image(width, height, TGAImage::RGB);
-
-    // declare buffer variables for each drawLine draw
-    Eigen::Vector3f v0, v1; 
-    int x0, x1, y0, y1;
-    std::vector<int> face;
-
-    // record the highest and lowest vertex value in the z-coordinate
-    // this is used to color the lines
-    float minZ, maxZ;
-    for (int i=0; i<model ->nverts(); i++) {
-        minZ = std::min(minZ, model->vert(i)[2]);
-        maxZ = std::max(minZ, model->vert(i)[2]);
-    }
-
-    for (int i=0; i<model->nfaces(); i++) {
-
-        face = model->face(i);
-
-        for (int j=0; j<3; j++) {
-            // get one of three lines of the triangular face
-            v0 = model -> vert(face[j]);
-            v1 = model -> vert(face[(j + 1) % 3]);
-
-            // assuming that model is centered at (0, 0)
-            // shift vertex value from [-1, 1] to [0, 1]
-            // scale to [0, height] / [0, width]
-            x0 = ((v0[0] + 1.0) / 2.0) * width ;
-            y0 = ((v0[1] + 1.0) / 2.0) * height;
-            x1 = ((v1[0] + 1.0) / 2.0) * width ;
-            y1 = ((v1[1] + 1.0) / 2.0) * height;
-
-            // draw the line
-            const float z = (1.0 - ((std::min(v0[2], v1[2]) + std::abs(minZ)) / (maxZ - minZ))) * 255;
-            const TGAColor lineColor = TGAColor(z, z, z, 255);
-            drawLine(x0, y0, x1, y1, image, lineColor);
-        }
-    }
-
-    image.flip_vertically(); 
-    image.write_tga_file(outputfile);
-
-}
-
 void getBarycentricCoordinates(const Eigen::Vector2i *triangle, const Eigen::Vector2i &point, Eigen::Vector3f &barycentric)
 {
     // returns the barycentric coordinate of the point in terms of the input triangle
@@ -153,6 +105,72 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
                 image.set(point[0], point[1], color);
             }
         }
+    }
+}
+
+void drawWireFrameMesh(const char* inputFile, const char* outputFile, TGAImage &image)
+{
+    Model* model = new Model(inputFile);
+
+    // declare buffer variables for each drawLine draw
+    Eigen::Vector3f v0, v1; 
+    int x0, x1, y0, y1;
+    std::vector<int> face;
+
+    // record the highest and lowest vertex value in the z-coordinate
+    // this is used to color the lines
+    float minZ, maxZ;
+    for (int i=0; i<model ->nverts(); i++) {
+        minZ = std::min(minZ, model->vert(i)[2]);
+        maxZ = std::max(minZ, model->vert(i)[2]);
+    }
+
+    for (int i=0; i<model->nfaces(); i++) {
+
+        face = model->face(i);
+
+        for (int j=0; j<3; j++) {
+            // get one of three lines of the triangular face
+            v0 = model -> vert(face[j]);
+            v1 = model -> vert(face[(j + 1) % 3]);
+
+            // assuming that model is centered at (0, 0)
+            // shift vertex value from [-1, 1] to [0, 1]
+            // scale to [0, height] / [0, width]
+            x0 = ((v0[0] + 1.0) / 2.0) * image.get_width();
+            y0 = ((v0[1] + 1.0) / 2.0) * image.get_height();
+            x1 = ((v1[0] + 1.0) / 2.0) * image.get_width();
+            y1 = ((v1[1] + 1.0) / 2.0) * image.get_height();
+
+            // draw the line
+            const float z = (1.0 - ((std::min(v0[2], v1[2]) + std::abs(minZ)) / (maxZ - minZ))) * 255;
+            const TGAColor lineColor = TGAColor(z, z, z, 255);
+            drawLine(x0, y0, x1, y1, image, lineColor);
+        }
+    }
+}
+
+void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
+{
+    Model* model = new Model(inputFile);
+
+    // initialize buffer variables
+    std::vector<int> face;
+    Eigen::Vector2i screenCoords[3];
+    Eigen::Vector3f worldCoords;
+
+    // for each face of the model
+    for (int i=0; i<model->nfaces(); i++) {
+        face = model->face(i);
+
+        // for each vertex of the face
+        for (int j=0; j<3; j++) {
+            worldCoords = model -> vert(face[j]);
+
+            // flatten the model and scale coordinates to screen space
+            screenCoords[j] = Eigen::Vector2i((worldCoords[0] + 1.0) * image.get_width() / 2.0, (worldCoords[1] + 1.0) * image.get_height() / 2);
+        }
+        drawFilledTriangle(&screenCoords[0], image, TGAColor(rand()%255, rand()%255, rand()%255, 255));
     }
 }
 
