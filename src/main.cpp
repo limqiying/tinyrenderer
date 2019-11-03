@@ -55,26 +55,49 @@ void drawWireFrameMesh(const char* inputfile, const char* outputfile)
     model = new Model(inputfile);
     TGAImage image(width, height, TGAImage::RGB);
 
-    Eigen::Vector3f v0, v1;
+    // declare buffer variables for each line draw
+    Eigen::Vector3f v0, v1; 
     int x0, x1, y0, y1;
     std::vector<int> face;
-    for (int i=0; i< model->nfaces(); i++) {
+
+    // record the highest and lowest vertex value in the z-coordinate
+    // this is used to color the lines
+    float minZ, maxZ;
+    for (int i=0; i<model ->nverts(); i++) {
+        minZ = std::min(minZ, model->vert(i).z());
+        maxZ = std::max(minZ, model->vert(i).z());
+    }
+
+    for (int i=0; i<model->nfaces(); i++) {
+
         face = model->face(i);
+
         for (int j=0; j<3; j++) {
+            // get one of three lines of the triangular face
             v0 = model -> vert(face[j]);
             v1 = model -> vert(face[(j + 1) % 3]);
-            x0 = (v0.x() + 1.0) * width / 2.0 ;
-            y0 = (v0.y() + 1.0) * height / 2.0;
-            x1 = (v1.x() + 1.0) * width / 2.0 ;
-            y1 = (v1.y() + 1.0) * height / 2.0;
-            line(x0, y0, x1, y1, image, white);
+
+            // assuming that model is centered at (0, 0)
+            // shift vertex value from [-1, 1] to [0, 1]
+            // scale to [0, height] / [0, width]
+            x0 = ((v0.x() + 1.0) / 2.0) * width ;
+            y0 = ((v0.y() + 1.0) / 2.0) * height;
+            x1 = ((v1.x() + 1.0) / 2.0) * width ;
+            y1 = ((v1.y() + 1.0) / 2.0) * height;
+
+            // draw the line
+            const float z = (1.0 - ((std::min(v0.z(), v1.z()) + std::abs(minZ)) / (maxZ - minZ))) * 255;
+            const TGAColor lineColor = TGAColor(z, z, z, 255);
+            line(x0, y0, x1, y1, image, lineColor);
         }
     }
+
     image.flip_vertically(); 
     image.write_tga_file(outputfile);
+
 }
 
 int main(int argc, char** argv) 
 {
-    drawWireFrameMesh("resources/mickey.obj", "output.tga");
+    drawWireFrameMesh("resources/head.obj", "output.tga");
 }
