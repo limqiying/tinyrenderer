@@ -51,7 +51,7 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 int main(int argc, char** argv) {
-    model = new Model("resources/mickey2.obj");
+    model = new Model("resources/mickey.obj");
     TGAImage image(width, height, TGAImage::RGB);
 
     Eigen::Vector3f v0, v1;
