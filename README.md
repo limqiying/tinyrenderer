@@ -5,8 +5,10 @@ building a bare-bones renderer according to tinyrenderer by Dmitry V. Sokolov
 
 Wireframe renderings of 3D models
 ![head](images/wireframe/head.png)
+![head](images/wireframe/mickey.png)
 
 ## Lesson 2
-Filled triangle renderings 
+Filled triangle renderings with visual artifacts
 ![mickey](images/triangles/mickey.png)
-![cat](images/triangles/colorful_cat.png)![cat](images/triangles/cat.png)
+![mickey](images/triangles/man.png)
+![cat](images/triangles/colorful_cat.png)
