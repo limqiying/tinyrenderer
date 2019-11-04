@@ -108,6 +108,33 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
     }
 }
 
+void rasterize(Eigen::Vector2i p0, Eigen::Vector2i p1, TGAImage &image, const TGAColor &color, int ybuffer[])
+{
+    if (p0.x() > p1.x()) {
+        // ensure that p0 has the smaller x-coordinate of the two
+        std::swap(p0, p1);
+    }
+    
+    // initialize temporary buffer values
+    float t;
+    int y;
+
+    for (int x=p0.x(); x<p1.x(); x++) {     // from the left to the right of the line
+
+        // compute the y-coordinate of the pixel
+        t = (x - p0.x()) / (float)(p1.x() - p0.x());
+        y = p0.y() * (1.0 - t) + p1.y() * t;
+
+        if (ybuffer[x] < y) {
+            // set ybuffer[x] to be the largest y-value seen so far of all lines drawn
+            ybuffer[x] = y;
+            // if this line is the highest seen (ie highest y-value at this x position), 
+            // color the line this color
+            image.set(x, 0, color);
+        }
+    }
+}
+
 void drawWireFrameMesh(const char* inputFile, const char* outputFile, TGAImage &image)
 {
     Model* model = new Model(inputFile);
@@ -149,6 +176,7 @@ void drawWireFrameMesh(const char* inputFile, const char* outputFile, TGAImage &
         }
     }
 }
+
 
 void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
 {
