@@ -22,7 +22,7 @@ int main(int argc, char** argv)
     const int height = 800;
     TGAImage image(width, height, TGAImage::RGB);
 
-    drawTriangleMesh("resources/mickey.obj", "output.tga", image);
+    drawTriangleMesh("resources/cat.obj", "output.tga", image);
 
     image.flip_vertically(); 
     image.write_tga_file("output.tga");

@@ -150,14 +150,40 @@ void drawWireFrameMesh(const char* inputFile, const char* outputFile, TGAImage &
     }
 }
 
+// void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
+// {
+//     Model* model = new Model(inputFile);
+
+//     // initialize buffer variables
+//     std::vector<int> face;
+//     Eigen::Vector2i screenCoords[3];
+//     Eigen::Vector3f worldCoords;
+
+//     // for each face of the model
+//     for (int i=0; i<model->nfaces(); i++) {
+//         face = model->face(i);
+
+//         // for each vertex of the face
+//         for (int j=0; j<3; j++) {
+//             worldCoords = model -> vert(face[j]);
+
+//             // flatten the model and scale coordinates to screen space
+//             screenCoords[j] = Eigen::Vector2i((worldCoords[0] + 1.0) * image.get_width() / 2.0, (worldCoords[1] + 1.0) * image.get_height() / 2);
+//         }
+//         drawFilledTriangle(&screenCoords[0], image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+//     }
+// }
+
 void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
 {
     Model* model = new Model(inputFile);
+    Eigen::Vector3f lightDirection = Eigen::Vector3f(0, 0, 1.0); // define direction of light to be in the direction of lookAt
 
     // initialize buffer variables
     std::vector<int> face;
     Eigen::Vector2i screenCoords[3];
-    Eigen::Vector3f worldCoords;
+    Eigen::Vector3f worldCoords[3], normal;
+    float intensity;
 
     // for each face of the model
     for (int i=0; i<model->nfaces(); i++) {
@@ -165,12 +191,21 @@ void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &i
 
         // for each vertex of the face
         for (int j=0; j<3; j++) {
-            worldCoords = model -> vert(face[j]);
+            worldCoords[j] = model -> vert(face[j]);
 
             // flatten the model and scale coordinates to screen space
-            screenCoords[j] = Eigen::Vector2i((worldCoords[0] + 1.0) * image.get_width() / 2.0, (worldCoords[1] + 1.0) * image.get_height() / 2);
+            screenCoords[j] = Eigen::Vector2i((worldCoords[j][0] + 1.0) * image.get_width() / 2.0, (worldCoords[j][1] + 1.0) * image.get_height() / 2);
         }
-        drawFilledTriangle(&screenCoords[0], image, TGAColor(rand()%255, rand()%255, rand()%255, 255));
+
+        // define the vector that is normal to the triangle face
+        normal = (worldCoords[1] - worldCoords[0])
+                                .cross(worldCoords[2] - worldCoords[0])
+                                .normalized();
+
+        intensity = normal.dot(lightDirection);
+        if (intensity > 0.0) {
+            drawFilledTriangle(&screenCoords[0], image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+        }
     }
 }
 
