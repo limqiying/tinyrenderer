@@ -59,8 +59,15 @@ Model::Model(const char *filename)
             // creates a 3D vector from the info and pushes it to the array
             Vector3f v = Vector3f(raw[0], raw[1], raw[2]);
             verts.push_back(v);
-        } else if (line.compare(0, 2, "f ") == 0) { // if current line details face info
+        } else if (line.compare(0, 3, "vt ") == 0){
+            
+            iss >> trash >> trash;
+            iss >> raw[0];
+            iss >> raw[1];
+            Vector2f t = Vector2f(raw[0], raw[1]);
+            textures.push_back(t);
 
+        } else if (line.compare(0, 2, "f ") == 0) { // if current line details face info
             // 3D vector to hold 3 indexes, 1 for each vertex of the face
             std::vector<FaceInfo> f;
 
@@ -89,17 +96,27 @@ int Model::nverts()
     return (int)verts.size();
 }
 
+int Model::ntextures() 
+{
+    return (int)textures.size();
+}
+
 int Model::nfaces() 
 {
     return (int)faces.size();
 }
 
-std::vector<FaceInfo> Model::face(int idx) 
-{
-    return faces[idx];
-}
-
 Vector3f Model::vert(int i) 
 {
     return verts[i];
+}
+
+Vector2f Model::texture(int i) 
+{
+    return textures[i];
+}
+
+std::vector<FaceInfo> Model::face(int idx) 
+{
+    return faces[idx];
 }
