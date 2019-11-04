@@ -150,30 +150,6 @@ void drawWireFrameMesh(const char* inputFile, const char* outputFile, TGAImage &
     }
 }
 
-// void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
-// {
-//     Model* model = new Model(inputFile);
-
-//     // initialize buffer variables
-//     std::vector<int> face;
-//     Eigen::Vector2i screenCoords[3];
-//     Eigen::Vector3f worldCoords;
-
-//     // for each face of the model
-//     for (int i=0; i<model->nfaces(); i++) {
-//         face = model->face(i);
-
-//         // for each vertex of the face
-//         for (int j=0; j<3; j++) {
-//             worldCoords = model -> vert(face[j]);
-
-//             // flatten the model and scale coordinates to screen space
-//             screenCoords[j] = Eigen::Vector2i((worldCoords[0] + 1.0) * image.get_width() / 2.0, (worldCoords[1] + 1.0) * image.get_height() / 2);
-//         }
-//         drawFilledTriangle(&screenCoords[0], image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
-//     }
-// }
-
 void drawTriangleMesh(const char* inputFile, const char* outputFile, TGAImage &image)
 {
     Model* model = new Model(inputFile);
