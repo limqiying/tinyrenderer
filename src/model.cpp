@@ -62,18 +62,19 @@ Model::Model(const char *filename)
         } else if (line.compare(0, 2, "f ") == 0) { // if current line details face info
 
             // 3D vector to hold 3 indexes, 1 for each vertex of the face
-            std::vector<int> f;
+            std::vector<FaceInfo> f;
 
             int itrash; // disposal for normal index and texture index
-            int idx; // buffer for vertex index
+            int vIdx, tIdx; // buffer for vertex index and texture index
 
             // discard the first "f" char
             iss >> trash;
-            while (iss >> idx >> trash >> itrash >> trash >> itrash) {
+            while (iss >> vIdx >> trash >> tIdx >> trash >> itrash) {
                 // since index is 1-indexed, decrement by 1
-                idx --; 
+                vIdx --; 
+                tIdx --;
 
-                f.push_back(idx);  
+                f.push_back(FaceInfo(vIdx, tIdx));  
             }
             faces.push_back(f);
         }
@@ -93,7 +94,7 @@ int Model::nfaces()
     return (int)faces.size();
 }
 
-std::vector<int> Model::face(int idx) 
+std::vector<FaceInfo> Model::face(int idx) 
 {
     return faces[idx];
 }

@@ -223,9 +223,9 @@ void drawWireFrameMesh(const char* inputFile, TGAImage &image)
     Model* model = new Model(inputFile);
 
     // declare buffer variables for each drawLine draw
-    Eigen::Vector3f v0, v1; 
+    Eigen::Vector3f v0, v1;     
     int x0, x1, y0, y1;
-    std::vector<int> face;
+    std::vector<FaceInfo> face;
 
     // record the highest and lowest vertex value in the z-coordinate
     // this is used to color the lines
@@ -241,8 +241,8 @@ void drawWireFrameMesh(const char* inputFile, TGAImage &image)
 
         for (int j=0; j<3; j++) {
             // get one of three lines of the triangular face
-            v0 = model -> vert(face[j]);
-            v1 = model -> vert(face[(j + 1) % 3]);
+            v0 = model -> vert(face[j].vertexIndex);
+            v1 = model -> vert(face[(j + 1) % 3].vertexIndex);
 
             // assuming that model is centered at (0, 0)
             // shift vertex value from [-1, 1] to [0, 1]
@@ -274,7 +274,7 @@ void drawTriangleMesh(const char* inputFile, TGAImage &image)
     Eigen::Vector3f lightDirection = Eigen::Vector3f(0, 0, 1.0); // define direction of light to be in the direction of lookAt
 
     // initialize buffer variables
-    std::vector<int> face;
+    std::vector<FaceInfo> face;
     Eigen::Vector2i screenCoords[3];
     Eigen::Vector3f worldCoords[3], normal;
     float intensity;
@@ -285,7 +285,7 @@ void drawTriangleMesh(const char* inputFile, TGAImage &image)
 
         // for each vertex of the face
         for (int j=0; j<3; j++) {
-            worldCoords[j] = model -> vert(face[j]);
+            worldCoords[j] = model -> vert(face[j].vertexIndex);
 
             // flatten the model and scale coordinates to screen space
             screenCoords[j] = Eigen::Vector2i((worldCoords[j][0] + 1.0) * image.get_width() / 2.0, (worldCoords[j][1] + 1.0) * image.get_height() / 2);
@@ -318,7 +318,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
    float *zbuffer = new float[image.get_width() * image.get_height()];
    for (int i=0; i<image.get_width()*image.get_height(); i++) zbuffer[i] = -std::numeric_limits<float>::max();
 
-   std::vector<int> face;
+   std::vector<FaceInfo> face;
    Eigen::Vector3f triangle[3], worldCoords[3], normal;
    float intensity;
    
@@ -326,7 +326,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
        face = model->face(i);
 
        for (int j=0; j<3; j++) {
-           worldCoords[j] = model -> vert(face[j]);    // get the coordinates of the triangle in world coordinates
+           worldCoords[j] = model -> vert(face[j].vertexIndex);    // get the coordinates of the triangle in world coordinates
 
            // then tranform the coordinates to screenspace, with the additional z-coordinate value
            triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
