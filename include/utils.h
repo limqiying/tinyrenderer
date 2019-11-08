@@ -137,7 +137,57 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
     }
 }
 
-void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const TGAColor &color) 
+// void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const TGAColor &color) 
+// {
+//     /*
+//     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
+//     seen so far, as determined by the z-buffer. This enables us to cull backfaces easily
+//     */
+
+//     // defines the boxMin to be {infinity, infinity}
+//     float boxMin[2] = { std::numeric_limits<float>::max(),  std::numeric_limits<float>::max()}; 
+
+//     // defines the boxMin to be {-infinity, -infinity}
+//     float boxMax[2] = {-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()}; 
+
+//     // defines the upper bound of the image; triangle drawn outside this will be clipped
+//     float upperClamp[2] = {image.get_width() - 1, image.get_height() -1};
+
+//     for (int i=0; i<3; i++) {   // determine the bounding box parameters for the triangle
+//         for (int j=0; j<2; j++) {
+//             boxMin[j] = std::max(0.0f, std::min(boxMin[j], triangle[i][j]));
+//             boxMax[j] = std::min(upperClamp[j], std::max(boxMax[j], triangle[i][j]));
+//         }
+//     }
+
+//     Eigen::Vector3f point;
+//     Eigen::Vector3f barycentric;
+
+//     // for every pixel in the bounding box
+//     for (point[0]=boxMin[0]; point[0]<=boxMax[0]; point[0]++) {
+//         for (point[1]=boxMin[1]; point[1]<=boxMax[1]; point[1]++) {
+
+//             // check if the pixel lies in the triangle in the screen
+//             // and grab the barycentric coordinates
+//             if (pointInTriangle(triangle, point, barycentric)) {
+
+//                 // initialize the z-coordinate of the point to 0
+//                 point[2] = 0.0;
+
+//                 // compute the z-coordinate of the point in terms of its barycentric coordinates
+//                 for (int i=0; i<3; i++) point[2] += triangle[i][2] * barycentric[i];
+
+//                 // if the point is infront (higher z-value) of the previously-drawn point, then color the pixel in
+//                 if (zbuffer[int(point.x() + point.y() * image.get_width())] < point.z()) {
+//                     zbuffer[int(point.x() + point.y() * image.get_width())] = point.z();
+//                     image.set(point.x(), point.y(), color);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f *textures, float *zbuffer, TGAImage &image, TGAImage &textureImage, const TGAColor &color) 
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -162,6 +212,8 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAIma
 
     Eigen::Vector3f point;
     Eigen::Vector3f barycentric;
+    Eigen::Vector2f textureCoordinate;
+    TGAColor pixelColor;
 
     // for every pixel in the bounding box
     for (point[0]=boxMin[0]; point[0]<=boxMax[0]; point[0]++) {
@@ -179,8 +231,18 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAIma
 
                 // if the point is infront (higher z-value) of the previously-drawn point, then color the pixel in
                 if (zbuffer[int(point.x() + point.y() * image.get_width())] < point.z()) {
+
+                    // update the maximum z-coordinate
                     zbuffer[int(point.x() + point.y() * image.get_width())] = point.z();
-                    image.set(point.x(), point.y(), color);
+
+                    // get texture coordinate of the specific point in the triangle
+                    // for (int i=0; i<3; i++) textureCoordinate[i] = 0.0f;
+                    for (int i=0; i<3; i++) textureCoordinate += barycentric[i] * textures[i];
+                    pixelColor = textureImage.get(textureCoordinate.x(), textureCoordinate.y());
+
+                    // draw the pixel of the specific texture color
+                    image.set(point.x(), point.y(), pixelColor);
+
                 }
             }
         }
@@ -303,7 +365,7 @@ void drawTriangleMesh(const char* inputFile, TGAImage &image)
     }
 }
 
-void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
+void drawTriangleMeshZ(const char* inputFile, TGAImage &image, TGAImage &textureImage)
 {
     /*
     Similar to drawTriangleMesh, this function draws the obj file, but uses a z-buffer to ensure that only the
@@ -320,6 +382,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
 
    std::vector<FaceInfo> face;
    Eigen::Vector3f triangle[3], worldCoords[3], normal;
+   Eigen::Vector2f textures[3];
    float intensity;
    
    for (int i=0; i< model->nfaces(); i++) {
@@ -327,7 +390,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
 
        for (int j=0; j<3; j++) {
            worldCoords[j] = model -> vert(face[j].vertexIndex);    // get the coordinates of the triangle in world coordinates
-
+           textures[j] = model -> texture(face[j].textureIndex);
            // then tranform the coordinates to screenspace, with the additional z-coordinate value
            triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
                                             int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
@@ -339,7 +402,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
                 .normalized();
 
         intensity = normal.dot(lightDirection);
-        drawFilledTriangleZ(triangle, zbuffer, image, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+        drawFilledTriangleZ(triangle, textures, zbuffer, image, textureImage, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
    }
 }
 

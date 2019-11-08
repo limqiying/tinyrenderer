@@ -33,8 +33,10 @@ int main(int argc, char** argv)
     const int height = 800;
 
     TGAImage image(width, height, TGAImage::RGB);
+    TGAImage textureImage;
+    textureImage.read_tga_file("resources/head.tga");
+    drawTriangleMeshZ(modelFile, image, textureImage);
 
-    drawTriangleMeshZ(modelFile, image);
     image.flip_vertically(); 
     image.write_tga_file("output.tga");
 }
