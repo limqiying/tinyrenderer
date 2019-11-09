@@ -20,25 +20,31 @@ const TGAColor blue = TGAColor(0, 0, 255, 255);
 int main(int argc, char** argv) 
 {
     char modelFile[20] = "resources/";
-    char textureFile[20] = "resources/";
-
-    // if filename is provided in the commandline, render that file
-    // otherwise, default to head.obj
-    if (3==argc) {
-        strcat(modelFile, argv[1]);
-        strcat(textureFile, argv[2]);
-    } else {
-        strcat(modelFile, "head.obj");
-        strcat(textureFile, "head.tga");
-    }
-    
     const int width = 800;
     const int height = 800;
 
     TGAImage image(width, height, TGAImage::RGB);
-    TGAImage textureImage;
-    textureImage.read_tga_file(textureFile);
-    drawTriangleMeshZ(modelFile, image, textureImage);
+
+    if (2 == argc) {    
+        std::cout << "No texture file specified, drawn without textures" << std::endl;
+        strcat(modelFile, argv[1]);
+        drawTriangleMeshZ(modelFile, image);
+    } else {
+        // otherwise, draw textures
+        char textureFile[20] = "resources/";
+        if (3 == argc) {
+            // if target model and texture files are specified, use then
+            strcat(modelFile, argv[1]);
+            strcat(textureFile, argv[2]);
+        } else {
+            // otherwise use default files
+            strcat(modelFile, "head.obj");
+            strcat(textureFile, "head.tga");
+        }
+        TGAImage textureImage;
+        textureImage.read_tga_file(textureFile);
+        drawTriangleMeshZ(modelFile, image, textureImage);
+    }
 
     image.flip_vertically(); 
     image.write_tga_file("output.tga");
