@@ -238,7 +238,7 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f 
                     // get texture coordinate of the specific point in the triangle
                     for (int i=0; i<2; i++) textureCoordinate[i] = 0.0f;
                     for (int i=0; i<3; i++) textureCoordinate += barycentric[i] * textures[i];
-                    pixelColor = textureImage.get((1.0f - textureCoordinate.x()) * 1024, (1.0f - textureCoordinate.y()) * 1024);
+                    pixelColor = textureImage.get((1.0f - textureCoordinate.x()) * textureImage.get_width(), (1.0f - textureCoordinate.y()) * textureImage.get_height());
                     // draw the pixel of the specific texture color
                     image.set(point.x(), point.y(), pixelColor);
 
