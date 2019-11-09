@@ -444,4 +444,4 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
    }
 }
 
-#endif /* __UTILS_H__ */
+#endif  /*__UTILS_H__ */
