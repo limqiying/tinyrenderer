@@ -14,3 +14,5 @@ Filled triangle renderings with visual artifacts
 ## Lesson 3
 Backface culling with Z-buffers
 ![mickey](images/z-buffer/mickey.png)
+with texture mapping
+![head-texture](images/z-buffer/head_texture.png)
