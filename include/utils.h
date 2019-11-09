@@ -187,7 +187,7 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
 //     }
 // }
 
-void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f *textures, float *zbuffer, TGAImage &image, TGAImage &textureImage, const TGAColor &color) 
+void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f *textures, float *zbuffer, TGAImage &image, TGAImage &textureImage) 
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -236,10 +236,9 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f 
                     zbuffer[int(point.x() + point.y() * image.get_width())] = point.z();
 
                     // get texture coordinate of the specific point in the triangle
-                    // for (int i=0; i<3; i++) textureCoordinate[i] = 0.0f;
+                    for (int i=0; i<2; i++) textureCoordinate[i] = 0.0f;
                     for (int i=0; i<3; i++) textureCoordinate += barycentric[i] * textures[i];
-                    pixelColor = textureImage.get(textureCoordinate.x(), textureCoordinate.y());
-
+                    pixelColor = textureImage.get((1.0f - textureCoordinate.x()) * 1024, (1.0f - textureCoordinate.y()) * 1024);
                     // draw the pixel of the specific texture color
                     image.set(point.x(), point.y(), pixelColor);
 
@@ -402,7 +401,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, TGAImage &texture
                 .normalized();
 
         intensity = normal.dot(lightDirection);
-        drawFilledTriangleZ(triangle, textures, zbuffer, image, textureImage, TGAColor(intensity * 255, intensity * 255, intensity * 255, 255));
+        drawFilledTriangleZ(triangle, textures, zbuffer, image, textureImage);
    }
 }
 
