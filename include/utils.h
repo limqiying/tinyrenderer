@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include "tgaimage.h"
 #include "model.h"
+#include "transformations.h"
 
 void drawLine(int x0, int y0, int x1, int y1, TGAImage &image, const TGAColor &color) 
 {
@@ -382,8 +383,11 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, TGAImage &texture
    std::vector<FaceInfo> face;
    Eigen::Vector3f triangle[3], worldCoords[3], normal;
    Eigen::Vector2f textures[3];
+   Eigen::Matrix4f projection, viewport;
+   getProjection(3, projection);
+   getViewport(0.0, 0.0, image.get_width(), image.get_height(), viewport);
    float intensity;
-   
+
    for (int i=0; i< model->nfaces(); i++) {
        face = model->face(i);
 
@@ -391,9 +395,10 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, TGAImage &texture
            worldCoords[j] = model -> vert(face[j].vertexIndex);    // get the coordinates of the triangle in world coordinates
            textures[j] = model -> texture(face[j].textureIndex);
            // then tranform the coordinates to screenspace, with the additional z-coordinate value
-           triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
-                                            int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
-                                            worldCoords[j].z());
+        //    triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
+        //                                     int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
+        //                                     worldCoords[j].z());
+            triangle[j] = fromHomogenous(viewport * projection * toHomogenous(worldCoords[j]));
        }
        // define the vector that is normal to the triangle face
         normal = (worldCoords[1] - worldCoords[0])
@@ -423,6 +428,9 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
    std::vector<FaceInfo> face;
    Eigen::Vector3f triangle[3], worldCoords[3], normal;
    float intensity;
+   Eigen::Matrix4f projection, viewport;
+   getProjection(3, projection);
+   getViewport(0.0, 0.0, image.get_width(), image.get_height(), viewport);
    
    for (int i=0; i< model->nfaces(); i++) {
        face = model->face(i);
@@ -430,9 +438,10 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
        for (int j=0; j<3; j++) {
            worldCoords[j] = model -> vert(face[j].vertexIndex);    // get the coordinates of the triangle in world coordinates
            // then tranform the coordinates to screenspace, with the additional z-coordinate value
-           triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
-                                            int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
-                                            worldCoords[j].z());
+        //    triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
+        //                                     int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
+        //                                     worldCoords[j].z());
+            triangle[j] = fromHomogenous(viewport * projection * toHomogenous(worldCoords[j]));
        }
        // define the vector that is normal to the triangle face
         normal = (worldCoords[1] - worldCoords[0])
