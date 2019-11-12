@@ -138,7 +138,7 @@ void drawFilledTriangle(const Eigen::Vector2i *triangle, TGAImage &image, const 
     }
 }
 
-void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const TGAColor &color) 
+void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const float &intensity) 
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -181,14 +181,14 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAIma
                 // if the point is infront (higher z-value) of the previously-drawn point, then color the pixel in
                 if (zbuffer[int(point.x() + point.y() * image.get_width())] < point.z()) {
                     zbuffer[int(point.x() + point.y() * image.get_width())] = point.z();
-                    image.set(point.x(), point.y(), color);
+                    image.set(point.x(), point.y(), TGAColor(intensity * 255, intensity * 255, intensity * 255));
                 }
             }
         }
     }
 }
 
-void drawFilledTriangleZ(const Eigen::Vector3f *triangle, const Eigen::Vector2f *textures, float *zbuffer, TGAImage &image, TGAImage &textureImage, const float &intensity) 
+void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const float &intensity, const Eigen::Vector2f *textures, TGAImage &textureImage) 
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -406,7 +406,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, TGAImage &texture
                 .normalized();
 
         intensity = normal.dot(lightDirection);
-        drawFilledTriangleZ(triangle, textures, zbuffer, image, textureImage, intensity);
+        drawFilledTriangleZ(triangle, zbuffer, image, intensity, textures, textureImage);
    }
 }
 
@@ -449,7 +449,7 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image)
                 .normalized();
 
         intensity = normal.dot(lightDirection);
-        drawFilledTriangleZ(triangle, zbuffer, image, TGAColor(intensity * 255, intensity * 255, intensity * 255));
+        drawFilledTriangleZ(triangle, zbuffer, image, intensity);
    }
 }
 
