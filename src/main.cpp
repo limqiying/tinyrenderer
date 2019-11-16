@@ -21,7 +21,7 @@ const Eigen::Vector3f lightDirection = Eigen::Vector3f(-1.0, 0.0, 1.0); // defin
 
 int main(int argc, char** argv) 
 {
-    char modelFile[20] = "resources/";
+    char modelFile[50] = "resources/";
     const int width = 800;
     const int height = 800;
     
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
         drawTriangleMeshZ(modelFile, image, lightDirection);
     } else {
         // otherwise, draw textures
-        char textureFile[20] = "resources/";
+        char textureFile[50] = "resources/";
         if (3 == argc) {
             // if target model and texture files are specified, use then
             strcat(modelFile, argv[1]);
