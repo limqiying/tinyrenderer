@@ -261,7 +261,7 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAIma
                         normal += barycentric[i] * normals[i];
                     }
 
-                    pixelColor = textureImage.get((1.0f - textureCoordinate.x()) * textureImage.get_width(), (1.0f - textureCoordinate.y()) * textureImage.get_height());
+                    pixelColor = textureImage.get((textureCoordinate.x()) * textureImage.get_width(), (1.0f - textureCoordinate.y()) * textureImage.get_height());
                     intensity = normal.dot(lightDirection);
                     // draw the pixel of the specific texture color
                     image.set(point.x(), point.y(), pixelColor * intensity);
