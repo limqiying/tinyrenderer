@@ -16,7 +16,8 @@
 struct FaceInfo {
     int vertexIndex;
     int textureIndex;
-    FaceInfo(int v, int t): vertexIndex(v), textureIndex(t) {}
+    int normalIndex;
+    FaceInfo(int v, int t, int n): vertexIndex(v), textureIndex(t), normalIndex(n) {}
 };
 
 class Model
@@ -33,14 +34,21 @@ private:
     // the index of a vertex of the face
     std::vector<std::vector<FaceInfo> > faces;
 
+    // a vector that holds all the normals of the vertices in the model
+    // this is used to do Gouraud shading, where the normal per point in each face
+    // is an interpolation of the three vertices' normals
+    std::vector<Eigen::Vector3f> normals;
+
 public:
     Model(const char *filename);
     ~Model();
     int nverts();   // number of vertices
     int nfaces();   // number of faces
     int ntextures();
+    int nnormals();
     Eigen::Vector3f vert(int);  // grabs the vertex at the specified index
-    Eigen::Vector2f texture(int);
+    Eigen::Vector2f texture(int);   // grabs the texture at the specific index
+    Eigen::Vector3f normal(int); // grabs the normal at the specific index
     std::vector<FaceInfo> face(int); // grabs the face at the specified index
 };
 
