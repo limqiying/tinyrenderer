@@ -21,3 +21,4 @@ with texture mapping
 Gouraud shading
 ![gouraud-man](images/gouraud/gouraud_man.png)
 ![gouraud-head](images/gouraud/gouraud_head.png)
+![gouraud-mickey](images/gouraud/gouraud_mickey.png)
