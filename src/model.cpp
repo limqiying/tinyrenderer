@@ -97,6 +97,7 @@ Model::Model(const char *filename)
             // since index is 1-indexed, decrement by 1
             vIdx --; 
             tIdx --;
+            nIdx --;
 
             f.push_back(FaceInfo(vIdx, tIdx, nIdx));  
         }
