@@ -18,7 +18,11 @@ with texture mapping
 ![head-texture](images/z-buffer/head_texture.png)
 
 ## Lesson 5
-Gouraud shading
+Phong shading
 ![gouraud-man](images/gouraud/gouraud_man.png)
 ![gouraud-mickey](images/gouraud/gouraud_mickey.png)
 ![gouraud-head](images/gouraud/gouraud_head.png)
+
+## Lesson 6
+Normal Mapping
+![normal-map-head](images/normal-map/head_nm.png)
