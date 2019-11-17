@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     if (2 == argc) {    
         std::cout << "No texture file specified, drawn without textures" << std::endl;
         strcat(modelFile, argv[1]);
-        drawTriangleMeshZ(modelFile, image, lightDirection);
+        drawMesh(modelFile, image, lightDirection);
     } else {
         // otherwise, draw textures
         char textureFile[50] = "resources/";
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
         }
         TGAImage textureImage;
         textureImage.read_tga_file(textureFile);
-        drawTriangleMeshZ(modelFile, image, lightDirection, &textureImage);
+        drawMesh(modelFile, image, lightDirection, &textureImage);
     }
 
     image.flip_vertically(); 

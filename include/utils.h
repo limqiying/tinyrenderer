@@ -32,7 +32,7 @@ bool pointInTriangle(const Eigen::Vector3f *triangle, const Eigen::Vector3f &poi
     return ! (barycentric[0] < 0 || barycentric[1] < 0 || barycentric[2] < 0);
 }
 
-void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const Eigen::Vector3f *normals, const Eigen::Vector3f &lightDirection, const Eigen::Vector2f *textures = nullptr, TGAImage *textureImage = nullptr)  
+void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const Eigen::Vector3f *normals, const Eigen::Vector3f &lightDirection, const Eigen::Vector2f *textures = nullptr, TGAImage *textureImage = nullptr)  
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -105,7 +105,7 @@ void drawFilledTriangleZ(const Eigen::Vector3f *triangle, float *zbuffer, TGAIma
     }
 }
 
-void drawTriangleMeshZ(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lightDirection, TGAImage *textureImage = nullptr)
+void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lightDirection, TGAImage *textureImage = nullptr)
 {
     /*
     Similar to drawTriangleMesh, this function draws the obj file, but uses a z-buffer to ensure that only the
@@ -139,9 +139,9 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, const Eigen::Vect
             // triangle[j] = fromHomogenous(viewport * projection * toHomogenous(worldCoords[j]));
        }
        if (textureImage) {
-           drawFilledTriangleZ(triangle, zbuffer, image, normals, lightDirection, textures, textureImage);
+           drawTriangle(triangle, zbuffer, image, normals, lightDirection, textures, textureImage);
        } else {
-           drawFilledTriangleZ(triangle, zbuffer, image, normals, lightDirection);
+           drawTriangle(triangle, zbuffer, image, normals, lightDirection);
        }
    }
 }
