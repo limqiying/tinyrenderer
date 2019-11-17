@@ -144,6 +144,7 @@ void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lig
            drawTriangle(triangle, zbuffer, image, normals, lightDirection);
        }
    }
+   delete model;
 }
 
 #endif  /*__UTILS_H__ */
