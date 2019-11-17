@@ -16,7 +16,7 @@ const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
 const TGAColor green = TGAColor(0, 255, 0, 255);
 const TGAColor blue = TGAColor(0, 0, 255, 255);
-const Eigen::Vector3f lightDirection = Eigen::Vector3f(-1.0, 0.0, 1.0); // define direction of light to be in the direction of lookAt
+const Eigen::Vector3f lightDirection = Eigen::Vector3f(0.0, 0.0, 1.0); // define direction of light to be in the direction of lookAt
 
 
 int main(int argc, char** argv) 
