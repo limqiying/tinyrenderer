@@ -111,7 +111,6 @@ void drawTriangleMeshZ(const char* inputFile, TGAImage &image, const Eigen::Vect
     Similar to drawTriangleMesh, this function draws the obj file, but uses a z-buffer to ensure that only the
     faces cloest to the camera are seen.
     */
-   std::cout << textureImage << std::endl;
    Model* model = new Model(inputFile); 
 
     // define the zbuffer, which is initialized to contain all -infinity value
