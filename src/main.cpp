@@ -39,13 +39,14 @@ int main(int argc, char** argv)
             strcat(modelFile, argv[1]);
             strcat(textureFile, argv[2]);
         } else {
+            std::cout << "using default model" << std::endl;
             // otherwise use default files
             strcat(modelFile, "head.obj");
             strcat(textureFile, "head.tga");
         }
         TGAImage textureImage;
         textureImage.read_tga_file(textureFile);
-        drawTriangleMeshZ(modelFile, image, textureImage, lightDirection);
+        drawTriangleMeshZ(modelFile, image, lightDirection, &textureImage);
     }
 
     image.flip_vertically(); 
