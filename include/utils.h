@@ -32,7 +32,9 @@ bool pointInTriangle(const Eigen::Vector3f *triangle, const Eigen::Vector3f &poi
     return ! (barycentric[0] < 0 || barycentric[1] < 0 || barycentric[2] < 0);
 }
 
-void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const Eigen::Vector3f *normals, const Eigen::Vector3f &lightDirection, const Eigen::Vector2f *textures = nullptr, TGAImage *textureImage = nullptr)  
+void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &image, const Eigen::Vector3f *normals, 
+                const Eigen::Vector3f &lightDirection, const Eigen::Vector2f *textures = nullptr, 
+                TGAImage *textureImage = nullptr, TGAImage *normalMap = nullptr)  
 {
     /*
     Given a triangle and a z-buffer, this function draws parts of the triangle that have the highest z-coordinate value
@@ -43,7 +45,7 @@ void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &ima
     float boxMin[2] = { std::numeric_limits<float>::max(),  std::numeric_limits<float>::max()}; 
     
 
-    // defines the boxMin to be {-infinity, -infinity}
+    // defines the boxMax to be {-infinity, -infinity}
     float boxMax[2] = {-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max()}; 
 
     // defines the upper bound of the image; triangle drawn outside this will be clipped
@@ -59,6 +61,7 @@ void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &ima
     Eigen::Vector3f point, barycentric, normal;
     Eigen::Vector2f textureCoordinate;
     TGAColor pixelColor = TGAColor(255, 255, 255);
+    TGAColor normalMapColor;
     float intensity;
 
     // for every pixel in the bounding box
@@ -94,6 +97,14 @@ void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &ima
                     if (textureImage && textures) {
                         pixelColor = textureImage->get((textureCoordinate.x()) * textureImage->get_width(), (1.0f - textureCoordinate.y()) * textureImage->get_height());
                     } 
+                    if (normalMap) {
+                        // if normal map is specified, grab the color in then normal map
+                        // then overwrite the normal with the value in the normal map
+                        normalMapColor = normalMap->get((textureCoordinate.x()) * textureImage->get_width(), (1.0f - textureCoordinate.y()) * textureImage->get_height());
+                        normal.setZero();
+                        for (int i=0; i<3; i++) normal[i] = normalMapColor[i];
+                        normal.normalize();
+                    }
 
                     intensity = normal.dot(lightDirection);
                     // draw the pixel of the specific texture color
@@ -105,7 +116,7 @@ void drawTriangle(const Eigen::Vector3f *triangle, float *zbuffer, TGAImage &ima
     }
 }
 
-void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lightDirection, TGAImage *textureImage = nullptr)
+void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lightDirection, TGAImage *textureImage = nullptr, TGAImage *normalMap = nullptr)
 {
     /*
     Similar to drawTriangleMesh, this function draws the obj file, but uses a z-buffer to ensure that only the
@@ -138,11 +149,7 @@ void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lig
                                             worldCoords[j].z());
             // triangle[j] = fromHomogenous(viewport * projection * toHomogenous(worldCoords[j]));
        }
-       if (textureImage) {
-           drawTriangle(triangle, zbuffer, image, normals, lightDirection, textures, textureImage);
-       } else {
-           drawTriangle(triangle, zbuffer, image, normals, lightDirection);
-       }
+        drawTriangle(triangle, zbuffer, image, normals, lightDirection, textures, textureImage, normalMap);
    }
    delete model;
 }
