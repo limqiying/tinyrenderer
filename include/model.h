@@ -47,6 +47,7 @@ public:
     int ntextures();
     int nnormals();
     Eigen::Vector3f vert(int);  // grabs the vertex at the specified index
+    Eigen::Vector3f vert(int, int);  // grabs the vertex at the specified index
     Eigen::Vector2f texture(int);   // grabs the texture at the specific index
     Eigen::Vector3f normal(int); // grabs the normal at the specific index
     std::vector<FaceInfo> face(int); // grabs the face at the specified index
