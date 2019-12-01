@@ -1,154 +1,107 @@
-//
-//  model.cpp
-//  tinyrenderer
-//
-//  Created by Qi Ying Lim on 10/28/19.
-//  Copyright © 2019 Tia Lim. All rights reserved.
-//
-
-#include "model.h"
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <sstream>
-#include <vector>
+#include "model.h"
 
-using namespace std; using namespace Eigen;
-
-Model::Model(const char *filename)
-{
-    ifstream in;
-
-    //  open file
-    in.open(filename, ifstream::in);
-
-    // check success of file read    
-    if (in.fail()) {
-        cout << "failed" << endl;
-        cerr << "Error: " << strerror(errno);
-        return;
-    } else {
-        cout << "success" << endl;
-    }
-
-    // holds each line of the file
-    std::string line; 
-    
-    // buffer to hold the 3 coordinates of each vertex read
-    float raw[3];   
-    int i = 0;
+Model::Model(const char *filename) : verts_(), faces_(), norms_(), uv_(), diffusemap_(), normalmap_(), specularmap_() {
+    std::ifstream in;
+    in.open (filename, std::ifstream::in);
+    if (in.fail()) return;
+    std::string line;
     while (!in.eof()) {
-        i ++;
-
-        // reads string into line variable
-        getline(in, line);  
-
-        // gets an input string stream from string object
-        istringstream iss(line.c_str()); 
-        
-        // used to discard unused parts of the file
+        std::getline(in, line);
+        std::istringstream iss(line.c_str());
         char trash;
-        
-        if (line.compare(0, 2, "v ") == 0) {    
-            // if current line details vertex info
-
-            // discards the "v " part of the line
-            iss >> trash;   
-
-            // fill the raw array with vertex information
-            for (int i=0; i<3; i++) iss >> raw[i];  
-
-            // creates a 3D vector from the info and pushes it to the array
-            Vector3f v = Vector3f(raw[0], raw[1], raw[2]);
-            verts.push_back(v);
-        } else if (line.compare(0, 3, "vt ") == 0){
-            // if current line details texture info
-
-            // collect the texture indices
+        if (!line.compare(0, 2, "v ")) {
+            iss >> trash;
+            Eigen::Vector3f v;
+            for (int i=0;i<3;i++) iss >> v[i];
+            verts_.push_back(v);
+        } else if (!line.compare(0, 3, "vn ")) {
             iss >> trash >> trash;
-            iss >> raw[0];
-            iss >> raw[1];
-
-            Vector2f t = Vector2f(raw[0], raw[1]);
-            textures.push_back(t);
-
-        } else if (line.compare(0, 3, "vn ") == 0) {
-            // if current line details normal info
-
-            // discards the "vn" part of the line
-            iss >> trash >> trash;   
-
-            // fill the raw array with normal information
-            for (int i=0; i<3; i++) iss >> raw[i];  
-
-            // creates a 3D vector from the info and pushes it to the array
-            Vector3f n = Vector3f(raw[0], raw[1], raw[2]);
-            normals.push_back(n);
-            
-        } else if (line.compare(0, 2, "f ") == 0) { // if current line details face info
-        // 3D vector to hold 3 indexes, 1 for each vertex of the face
-        std::vector<FaceInfo> f;
-
-        int vIdx, tIdx, nIdx; // buffer for vertex index and texture index
-
-        // discard the first "f" char
-        iss >> trash;
-        while (iss >> vIdx >> trash >> tIdx >> trash >> nIdx) {
-            // since index is 1-indexed, decrement by 1
-            vIdx --; 
-            tIdx --;
-            nIdx --;
-
-            f.push_back(FaceInfo(vIdx, tIdx, nIdx));  
-        }
-        faces.push_back(f);
+            Eigen::Vector3f n;
+            for (int i=0;i<3;i++) iss >> n[i];
+            norms_.push_back(n);
+        } else if (!line.compare(0, 3, "vt ")) {
+            iss >> trash >> trash;
+            Eigen::Vector2f uv;
+            for (int i=0;i<2;i++) iss >> uv[i];
+            uv_.push_back(uv);
+        }  else if (!line.compare(0, 2, "f ")) {
+            std::vector<Eigen::Vector3i> f;
+            Eigen::Vector3i tmp;
+            iss >> trash;
+            while (iss >> tmp[0] >> trash >> tmp[1] >> trash >> tmp[2]) {
+                for (int i=0; i<3; i++) tmp[i]--; // in wavefront obj all indices start at 1, not zero
+                f.push_back(tmp);
+            }
+            faces_.push_back(f);
         }
     }
-    std::cerr << "# v# " << verts.size() << " f# "  << faces.size() << std::endl;
+    std::cerr << "# v# " << verts_.size() << " f# "  << faces_.size() << " vt# " << uv_.size() << " vn# " << norms_.size() << std::endl;
+    load_texture(filename, "_diffuse.tga", diffusemap_);
+    load_texture(filename, "_nm.tga",      normalmap_);
+    load_texture(filename, "_spec.tga",    specularmap_);
 }
 
 Model::~Model() {}
 
-int Model::nverts() 
-{
-    return (int)verts.size();
+int Model::nverts() {
+    return (int)verts_.size();
 }
 
-int Model::ntextures() 
-{
-    return (int)textures.size();
+int Model::nfaces() {
+    return (int)faces_.size();
 }
 
-int Model::nfaces() 
-{
-    return (int)faces.size();
+std::vector<int> Model::face(int idx) {
+    std::vector<int> face;
+    for (int i=0; i<(int)faces_[idx].size(); i++) face.push_back(faces_[idx][i][0]);
+    return face;
 }
 
-int Model::nnormals()
-{
-    return (int)normals.size();
+Eigen::Vector3f Model::vert(int i) {
+    return verts_[i];
 }
 
-Vector3f Model::vert(int i) 
-{
-    return verts[i];
+Eigen::Vector3f Model::vert(int iface, int nthvert) {
+    return verts_[faces_[iface][nthvert][0]];
 }
 
-Vector3f Model::vert(int iface, int nthvert) {
-    return verts[faces[iface][nthvert][0]];
+void Model::load_texture(std::string filename, const char *suffix, TGAImage &img) {
+    std::string texfile(filename);
+    size_t dot = texfile.find_last_of(".");
+    if (dot!=std::string::npos) {
+        texfile = texfile.substr(0,dot) + std::string(suffix);
+        std::cerr << "texture file " << texfile << " loading " << (img.read_tga_file(texfile.c_str()) ? "ok" : "failed") << std::endl;
+        img.flip_vertically();
+    }
 }
 
-Vector2f Model::texture(int i) 
-{
-    return textures[i];
+TGAColor Model::diffuse(Eigen::Vector2f uvf) {
+    Eigen::Vector2i uv(uvf[0]*diffusemap_.get_width(), uvf[1]*diffusemap_.get_height());
+    return diffusemap_.get(uv[0], uv[1]);
 }
 
-Vector3f Model::normal(int i)
-{
-    return normals[i];
+Eigen::Vector3f Model::normal(Eigen::Vector2f uvf) {
+    Eigen::Vector2i uv(uvf[0]*normalmap_.get_width(), uvf[1]*normalmap_.get_height());
+    TGAColor c = normalmap_.get(uv[0], uv[1]);
+    Eigen::Vector3f res;
+    for (int i=0; i<3; i++)
+        res[2-i] = (float)c[i]/255.f*2.f - 1.f;
+    return res;
 }
 
-std::vector<FaceInfo> Model::face(int idx) 
-{
-    return faces[idx];
+Eigen::Vector2f Model::uv(int iface, int nthvert) {
+    return uv_[faces_[iface][nthvert][1]];
+}
+
+float Model::specular(Eigen::Vector2f uvf) {
+    Eigen::Vector2i uv(uvf[0]*specularmap_.get_width(), uvf[1]*specularmap_.get_height());
+    return specularmap_.get(uv[0], uv[1])[0]/1.f;
+}
+
+Eigen::Vector3f Model::normal(int iface, int nthvert) {
+    int idx = faces_[iface][nthvert][2];
+    return norms_[idx].normalized();
 }
