@@ -134,10 +134,6 @@ Vector3f Model::vert(int i)
     return verts[i];
 }
 
-Vector3f Model::vert(int iface, int nthvert) {
-    return verts[faces[iface][nthvert][0]];
-}
-
 Vector2f Model::texture(int i) 
 {
     return textures[i];
