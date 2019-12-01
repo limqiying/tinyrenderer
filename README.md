@@ -17,6 +17,9 @@ Backface culling with Z-buffers
 with texture mapping
 ![head-texture](images/z-buffer/head_texture.png)
 
+##Lesson 4
+![transformations-head](images/shaders/head.jpg)
+
 ## Lesson 5
 Phong shading
 ![gouraud-man](images/gouraud/gouraud_man.png)
@@ -24,5 +27,7 @@ Phong shading
 ![gouraud-head](images/gouraud/gouraud_head.png)
 
 ## Lesson 6
-Normal Mapping
+Normal Mapping and Cel Shading
 ![normal-map-head](images/normal-map/head_nm.png)
+![cel-head](images/shaders/cel.jpg)
+![spec-head](images/shaders/man.jpg)
