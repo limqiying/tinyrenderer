@@ -8,6 +8,10 @@
 #include "model.h"
 #include "transformations.h"
 
+Eigen::Vector3f       eye(0, 0, 3);
+Eigen::Vector3f    center(0, 0, 0);
+Eigen::Vector3f        up(0, 1, 0);
+
 void getBarycentricCoordinates(const Eigen::Vector3f *triangle, const Eigen::Vector3f &point, Eigen::Vector3f &barycentric)
 {
     // returns the barycentric coordinate of the point in terms of the input triangle
@@ -132,8 +136,9 @@ void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lig
    std::vector<FaceInfo> face;
    Eigen::Vector3f triangle[3], normals[3], worldCoords[3];
    Eigen::Vector2f textures[3];
-   Eigen::Matrix4f projection, viewport;
-   getProjection(3, projection);
+   Eigen::Matrix4f projection, viewport, modelView;
+   getModelView(eye, center, up, modelView);
+   getProjection((eye - center).norm(), projection);
    getViewport(0.0, 0.0, image.get_width(), image.get_height(), viewport);
 
    for (int i=0; i< model->nfaces(); i++) {
@@ -144,10 +149,7 @@ void drawMesh(const char* inputFile, TGAImage &image, const Eigen::Vector3f &lig
            textures[j] = model -> texture(face[j].textureIndex);
            normals[j] = model -> normal(face[j].normalIndex);
            // then tranform the coordinates to screenspace, with the additional z-coordinate value
-           triangle[j] = Eigen::Vector3f(int((worldCoords[j].x() + 1.0) * image.get_width() / 2.0 + 0.5), 
-                                            int((worldCoords[j].y() + 1.0) * image.get_height() / 2.0 + 0.5), 
-                                            worldCoords[j].z());
-            // triangle[j] = fromHomogenous(viewport * projection * toHomogenous(worldCoords[j]));
+            triangle[j] = fromHomogenous(viewport * projection * modelView * toHomogenous(worldCoords[j]));
        }
         drawTriangle(triangle, zbuffer, image, normals, lightDirection, textures, textureImage, normalMap);
    }

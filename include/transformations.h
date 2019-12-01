@@ -39,10 +39,13 @@ void getViewport(float x, float y, int width, int height, Eigen::Matrix4f &outpu
 {
     // creates the viewport matrix that maps the bi-unit cube onto the screen
     // [-1, 1] ^ 3 -> [x, x+width] x [y, y+height] x [0, d]
-    output << width / 2.0f, 0, 0, x + (width / 2.0f),
-        0, height / 2.0f, 0, y + (height / 2.0f), 
-        0, 0, depth / 2.0f, depth / 2.0f,
-        0, 0, 0, 1.0f;
+    output = Eigen::Matrix4f::Identity();
+    output(0, 3) = x + width / 2.f;
+    output(1, 3) = y + height / 2.f;
+    output(2, 3) = 255.f / 2.f;
+    output(0, 0) = width / 2.f;
+    output(1, 1) = height / 2.f;
+    output(2, 2) = 255.f / 2.f;
 }
 
 void getProjection(float c, Eigen::Matrix4f &output)
