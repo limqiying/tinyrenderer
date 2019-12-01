@@ -20,6 +20,8 @@ struct TGA_Header {
 };
 #pragma pack(pop)
 
+
+
 struct TGAColor {
     unsigned char bgra[4];
     unsigned char bytespp;
@@ -60,6 +62,7 @@ struct TGAColor {
     }
 };
 
+
 class TGAImage {
 protected:
     unsigned char* data;
@@ -95,3 +98,4 @@ public:
 };
 
 #endif //__IMAGE_H__
+
